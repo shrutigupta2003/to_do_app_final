@@ -5,9 +5,9 @@ import { generateTokenAndSaveInCookies } from "../jwt/token.js";
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !confirmPassword) {
       return res
         .status(400)
         .json({ errors: "Please provide all required fields" });
@@ -18,12 +18,17 @@ export const register = async (req, res) => {
       username,
       email,
       password,
+      confirmPassword,
     });
     if (user) {
       return res.status(400).json({ errors: "User already exists" });
     }
+
+    if (password != confirmPassword) {
+      return res.status(400).json({ errors: "Passwords must match" });
+    }
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashPassword });
+    const newUser = new User({ username, email, password: hashPassword, confirmPassword: hashPassword });
     await newUser.save();
     if (newUser) {
       const token = await generateTokenAndSaveInCookies(newUser._id, res);

@@ -5,9 +5,19 @@ const todoSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  completed: {
-    type: Boolean,
-    default: false,
+  desc: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "inprogress", "completed"],
+    default: "pending",
+  },
+  priority: {
+    type: String,
+    enum: ["low", "medium", "high"],
+    default: "low"
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

@@ -3,9 +3,17 @@
 import Todo from "../models/todo.model.js";
 
 export const createTodo = async (req, res) => {
+
+  const { text, desc, status, priority } = req.body;
+
+  // if (!text, !desc, !["pending", "inprogress", "completed"].includes(status), !["low", "medium", "high"].includes(priority)) {
+  //   return res.status(400).json({ message: "invalid input data" });
+  // }
   const todo = new Todo({
     text: req.body.text,
-    completed: req.body.completed,
+    desc: req.body.desc,
+    status: req.body.status || "pending",
+    priority: req.body.priority || "low",
     user: req.user._id, //associated todo with logged in user
   });
 
@@ -28,17 +36,46 @@ export const getTodos = async (req, res) => {
   }
 };
 
-export const updateTodo = async (req, res) => {
+export const getTodoId = async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.status(200).json({ message: "Todo updated successfully", todo });
+    const id = req.params.id;
+    const todo = await Todo.findById(id) //fetch todos only for logged in user
+    if (todo)
+      res.status(201).json({ message: "Todo fetched successfully", todo });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "error in updating todo" });
+    res.status(500).json({ message: "error in fetching todos" });
   }
 };
+// export const updateTodo = async (req, res) => {
+//   try {
+//     const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//     });
+//     res.status(200).json({ message: "Todo updated successfully", todo });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "error in updating todo" });
+//   }
+// };
+
+export const updateTodo = async (req, res) => {
+  const { id } = req.params.id;
+  const { text, desc, status, priority } = req.body;
+
+  try {
+    const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body,
+      //{ new: true }
+    );
+    if (!updatedTodo) {
+      return res.status(404).json({ errors: "to do not found" });
+    }
+    res.status(200).json({ message: "to do updated successfully", updatedTodo })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "error in updating todo" })
+  }
+}
 
 export const deleteTodo = async (req, res) => {
   try {
@@ -47,7 +84,7 @@ export const deleteTodo = async (req, res) => {
       return res.status(404).json({ message: "Todo not found" });
     }
     res.status(200).json({ message: "Todo deleted successfully" });
-  } catch {
+  } catch (error) {
     console.log(error);
     res.status(500).json({ message: "error in deleting todo" });
   }

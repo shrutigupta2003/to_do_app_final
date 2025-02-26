@@ -2,6 +2,7 @@ import React from "react";
 import Home from "./components/Home";
 import Login from "./components/login";
 import Signup from "./components/signup";
+import Update from "./components/Update";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PageNotFound from "./components/PageNotFound";
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/update/:id" element={<Update />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </div>
